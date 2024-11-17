@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MyComposeApplication</string>
+    <string name="email">Почта</string>
+    <string name="password">Пароль</string>
+    <string name="register">Регистрация</string>
+    <string name="login_here">Авторизоваться</string>
+</resources>
