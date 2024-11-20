@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "798478607049",
+    "project_id": "mycomposeapplication-e923c",
+    "storage_bucket": "mycomposeapplication-e923c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798478607049:android:2a11ee3c47b9ff56f9a318",
+        "android_client_info": {
+          "package_name": "com.hfad.mycomposeapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC1PCn8PyxqkBiFVhRVDkdfAMLDC5D-0U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -22,15 +22,14 @@ fun EditText(
     modifier: Modifier = Modifier,
     @StringRes labelStringRes: Int,
     keyboardType: KeyboardType,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onValueChange: (String) -> Unit,
+    value: String
 
 ) {
-    var text by rememberSaveable { mutableStateOf("") }
     OutlinedTextField(
-        value = text,
-        onValueChange = { newText ->
-            text = newText
-        },
+        value = value,
+        onValueChange = onValueChange,
         label = { Text(stringResource(labelStringRes)) },
         singleLine = true,
         keyboardOptions = KeyboardOptions.Default.copy(
