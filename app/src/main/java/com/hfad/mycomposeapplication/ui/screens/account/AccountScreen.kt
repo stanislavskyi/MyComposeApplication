@@ -25,7 +25,6 @@ fun AccountScreen(
     FriendList(
         friends = friends,
         viewModel = friendsViewModel
-
     )
 }
 

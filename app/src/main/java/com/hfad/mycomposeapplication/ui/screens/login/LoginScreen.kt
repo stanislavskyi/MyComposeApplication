@@ -1,4 +1,4 @@
-package com.hfad.mycomposeapplication.ui.screens
+package com.hfad.mycomposeapplication.ui.screens.login
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -16,19 +16,44 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hfad.mycomposeapplication.R
 import com.hfad.mycomposeapplication.ui.common.components.EditText
+import kotlin.math.log
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    lambdaClickButton: () -> Unit) {
+    lambdaClickButton: () -> Unit,
+    loginViewModel: LoginViewModel = viewModel(),
+    onNavigateToNextScreen: () -> Unit
+) {
+
+    var emailText by rememberSaveable { mutableStateOf("") }
+    var passwordText by rememberSaveable { mutableStateOf("") }
+
+    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(loginState) {
+        if (loginState is LoginState.Success) {
+            loginViewModel.resetLoginState()
+            onNavigateToNextScreen()
+        }
+    }
+
     Column(
         modifier.verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -37,17 +62,23 @@ fun LoginScreen(
         EditText(
             Modifier.padding(horizontal = 16.dp),
             labelStringRes = R.string.email,
-            keyboardType = KeyboardType.Email
+            keyboardType = KeyboardType.Email,
+            onValueChange = { emailText = it},
+            value = emailText
         )
         EditText(
             Modifier.padding(horizontal = 16.dp),
             labelStringRes = R.string.password,
             keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            onValueChange = { passwordText = it},
+            value = passwordText
         )
         Spacer(Modifier.height(16.dp))
         Button(
-            onClick = { },
+            onClick = {
+                loginViewModel.validateEmailAndPassword(email = emailText.trim(), password = passwordText.trim())
+            },
             Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
