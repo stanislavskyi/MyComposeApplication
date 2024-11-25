@@ -24,16 +24,14 @@ fun MyAppNavigation(
         ) {
             composable(Routes.Login.route) {
                 LoginScreen(
-                    lambdaClickButton = {
-                        navController.navigateSingleTopTo(Routes.Register.route)
-                    },
+                    lambdaClickButton = { navController.navigateSingleTopTo(Routes.Register.route) },
                     onNavigateToNextScreen = { navController.navigateSingleTopTo(Routes.Account.route) }
                 )
             }
             composable(Routes.Register.route) {
                 RegisterScreen(
                     lambdaClickButton = { navController.navigateSingleTopTo(Routes.Login.route) },
-                    lambdaNavigationClick = { navController.navigateSingleTopTo(Routes.Account.route) }
+                    onNavigateToNextScreen = { navController.navigateSingleTopTo(Routes.Account.route) }
                 )
             }
             composable(Routes.Account.route) {

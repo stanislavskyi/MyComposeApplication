@@ -1,4 +1,4 @@
-package com.hfad.mycomposeapplication.ui.screens.account
+package com.hfad.mycomposeapplication.domain.entity
 
 data class Friend(
     val name: String,

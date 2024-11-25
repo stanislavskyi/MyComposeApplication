@@ -1,8 +1,13 @@
 package com.hfad.mycomposeapplication.di
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.hfad.mycomposeapplication.data.repository.AccountRepositoryImpl
 import com.hfad.mycomposeapplication.data.repository.AuthRepositoryImpl
+import com.hfad.mycomposeapplication.domain.repository.AccountRepository
 import com.hfad.mycomposeapplication.domain.repository.AuthRepository
+import com.hfad.mycomposeapplication.domain.usecase.FriendsUseCase
+import com.hfad.mycomposeapplication.domain.usecase.LoginUseCase
 import com.hfad.mycomposeapplication.domain.usecase.RegisterUseCase
 import dagger.Module
 import dagger.Provides
@@ -19,6 +24,10 @@ object AppModule {
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
     fun provideAuthRepository(auth: FirebaseAuth): AuthRepository {
         return AuthRepositoryImpl(auth)
     }
@@ -26,6 +35,21 @@ object AppModule {
     @Provides
     fun provideRegisterUseCase(repository: AuthRepository): RegisterUseCase {
         return RegisterUseCase(repository)
+    }
+
+    @Provides
+    fun provideLoginUseCase(repository: AuthRepository): LoginUseCase {
+        return LoginUseCase(repository)
+    }
+
+    @Provides
+    fun provideAccountRepository(auth: FirebaseAuth, firestore: FirebaseFirestore): AccountRepository {
+        return AccountRepositoryImpl(auth = auth,firestore = firestore)
+    }
+
+    @Provides
+    fun provideFriendsUseCase(repository: AccountRepository): FriendsUseCase {
+        return FriendsUseCase(repository)
     }
 
 }

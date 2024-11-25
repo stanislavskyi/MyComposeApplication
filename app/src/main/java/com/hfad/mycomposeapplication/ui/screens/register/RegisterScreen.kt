@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,20 +28,30 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hfad.mycomposeapplication.R
 import com.hfad.mycomposeapplication.ui.common.components.EditText
-import com.hfad.mycomposeapplication.ui.screens.login.LoginViewModel
+import com.hfad.mycomposeapplication.ui.screens.login.LoginState
 
 @Composable
 fun RegisterScreen(
     modifier: Modifier = Modifier,
     lambdaClickButton: () -> Unit,
-    lambdaNavigationClick: () -> Unit,
-    loginViewModel: RegisterViewModel = hiltViewModel()
+    viewModel: RegisterViewModel = hiltViewModel(),
+    onNavigateToNextScreen: () -> Unit
 ) {
+    val registerState by viewModel.registerState.collectAsStateWithLifecycle()
+
     var emailText by rememberSaveable { mutableStateOf("") }
     var passwordText by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(registerState) {
+        if (registerState is LoginState.Success) {
+            viewModel.addCurrentUser()
+            viewModel.resetLoginState()
+            onNavigateToNextScreen()
+        }
+    }
 
     Column(
         modifier.verticalScroll(rememberScrollState()),
@@ -52,21 +63,35 @@ fun RegisterScreen(
             labelStringRes = R.string.email,
             keyboardType = KeyboardType.Email,
             onValueChange = { emailText = it},
-            value = emailText
+            value = emailText,
+            isError = registerState is LoginState.Error && (registerState as LoginState.Error).message.contains("email")
         )
+        if (registerState is LoginState.Error && (registerState as LoginState.Error).message.contains("email")) {
+            Text(
+                text = (registerState as LoginState.Error).message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         EditText(
             Modifier.padding(horizontal = 16.dp),
             labelStringRes = R.string.password,
             keyboardType = KeyboardType.Password,
             visualTransformation = PasswordVisualTransformation(),
             onValueChange = { passwordText = it},
-            value = passwordText
+            value = passwordText,
+            isError = registerState is LoginState.Error && (registerState as LoginState.Error).message.contains("email")
         )
+        if (registerState is LoginState.Error && (registerState as LoginState.Error).message.contains("Password")) {
+            Text(
+                text = (registerState as LoginState.Error).message,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Spacer(Modifier.height(16.dp))
         Button(
-            onClick = {
-                loginViewModel.register(email = emailText, password = passwordText, onSuccess = {}, onError = {})
-            },
+            onClick = { viewModel.register(email = emailText.trim(), password = passwordText.trim()) },
             Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
