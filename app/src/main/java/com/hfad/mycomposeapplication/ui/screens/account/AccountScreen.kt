@@ -13,18 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.hfad.mycomposeapplication.ui.theme.MyComposeApplicationTheme
 
 @Composable
 fun AccountScreen(
     modifier: Modifier = Modifier,
-    friendsViewModel: FriendsViewModel = viewModel()
+    viewModel: FriendsViewModel = hiltViewModel()
 ) {
-    val friends by friendsViewModel.state.collectAsState()
+    val friends by viewModel.friendsState.collectAsState(listOf())
     FriendList(
         friends = friends,
-        viewModel = friendsViewModel
+        viewModel = viewModel
     )
 }
 

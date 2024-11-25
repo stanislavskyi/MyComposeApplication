@@ -1,38 +1,63 @@
 package com.hfad.mycomposeapplication.ui.screens.account
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.hfad.mycomposeapplication.data.repository.AccountRepositoryImpl
+import com.hfad.mycomposeapplication.domain.repository.AccountRepository
+import com.hfad.mycomposeapplication.domain.usecase.FriendsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FriendsViewModel : ViewModel() {
+@HiltViewModel
+class FriendsViewModel @Inject constructor(
+    private val friendsUseCase: FriendsUseCase,
+    private val repositoryImpl: AccountRepositoryImpl
+): ViewModel() {
 
-    private val friends: List<Friend> = mutableListOf(
-        Friend("first account", true),
-        Friend("second account", false),
-        Friend("third account", true),
-        Friend("five account", false),
-        Friend("six account", false),
-        Friend("seven account", true),
-        Friend("ten account", true),
-        Friend("eleven account", false),
-        Friend("twenty account", true)
-    )
-
-    private val _state = MutableStateFlow(friends)
-    val state = _state.asStateFlow()
+    private val _friendsState = MutableStateFlow<List<Friend>>(emptyList())
+    val friendsState = _friendsState.asStateFlow()
 
     init {
-        for (friend in friends) {
-            _state.value = friends
+        viewModelScope.launch {
+            repositoryImpl.listenForUserChanges().collect{
+                _friendsState.value = it.map { Friend(it.name, it.subscription) }
+            }
         }
     }
 
     fun changeSubState(friend: Friend) {
-        val updateList = _state.value.map {
+        if (friend.subscription){
+            addFriend(friend)
+        } else { deleteFriend(friend) }
+
+        val updateList = _friendsState.value.map {
             if (it.name == friend.name){
                 it.copy(subscription = !it.subscription)
             }else it
         }
-        _state.value = updateList
+        _friendsState.value = updateList
+    }
+
+    private fun addFriend(friend: Friend){
+        viewModelScope.launch {
+            repositoryImpl.addFriend(
+                friend = com.hfad.mycomposeapplication.domain.entity.Friend(friend.name, friend.subscription)
+            )
+        }
+    }
+
+    private fun deleteFriend(friend: Friend){
+        viewModelScope.launch {
+            repositoryImpl.deleteFriend(
+                friend = com.hfad.mycomposeapplication.domain.entity.Friend(friend.name, friend.subscription)
+            )
+        }
     }
 }

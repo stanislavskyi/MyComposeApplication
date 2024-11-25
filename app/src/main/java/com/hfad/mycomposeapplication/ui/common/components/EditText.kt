@@ -24,13 +24,15 @@ fun EditText(
     keyboardType: KeyboardType,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit,
-    value: String
+    value: String,
+    isError: Boolean = false
 
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(stringResource(labelStringRes)) },
+        isError = isError,
         singleLine = true,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = keyboardType
