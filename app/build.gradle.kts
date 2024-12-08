@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.androidx.paging.common.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,8 +73,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    //implementation(libs.androidx.lifecycle.viewmodel.compose)
+    //implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
     //Compose navigation
     implementation(libs.androidx.navigation.compose)
@@ -84,6 +85,26 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.51.1")
     ksp("com.google.dagger:hilt-compiler:2.51.1")
 
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+
+    implementation("androidx.paging:paging-compose:3.3.4")
+    //implementation("androidx.paging:paging-runtime:3.3.4")
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.5.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.5.0")
+    implementation("androidx.media3:media3-ui:1.5.0")
+
+    implementation("androidx.media3:media3-session:1.5.0")
+
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
 
 
 }

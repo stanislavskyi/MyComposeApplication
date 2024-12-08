@@ -2,22 +2,13 @@ package com.hfad.mycomposeapplication.data.repository
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.hfad.mycomposeapplication.domain.entity.Friend
 import com.hfad.mycomposeapplication.domain.repository.AccountRepository
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -66,7 +57,6 @@ class AccountRepositoryImpl @Inject constructor(
         val list = mutableListOf<Friend>()
 
         for (item in result){
-            Log.d("MY_TAG", item.id)
             list.add(Friend(name = item.id))
         }
         return list
