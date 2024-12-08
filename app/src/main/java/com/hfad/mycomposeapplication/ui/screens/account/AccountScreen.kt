@@ -1,6 +1,8 @@
 package com.hfad.mycomposeapplication.ui.screens.account
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,7 +34,7 @@ fun AccountScreen(
 
 @Composable
 fun FriendList(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxHeight(),
     friends: List<Friend>,
     viewModel: FriendsViewModel
 ){
