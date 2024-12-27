@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -72,21 +74,37 @@ fun CasterBar(
 
     // Запуск асинхронного извлечения цвета
     LaunchedEffect(isPlaying.obj.md5_image) {
-        val imageUrl = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg"
-        val bitmap = loadImageBitmap(imageUrl) // Функция загрузки Bitmap
-        bitmap?.let {
-            val palette = Palette.from(it).generate()
-            //backgroundColor = palette.getDominantColor(Color.Gray.toArgb()).toComposeColor()
-            val dominant = palette.getDominantColor(Color.Gray.toArgb())
-            val darkMuted = palette.getDarkMutedColor(Color.Gray.toArgb())
-            targetColor = Color(if (darkMuted != Color.Gray.toArgb()) darkMuted else dominant)
+        when(isPlaying.isContent){
+            true -> {
+                isPlaying.audio?.let {
+                    val palette = Palette.from(it).generate()
+                    //backgroundColor = palette.getDominantColor(Color.Gray.toArgb()).toComposeColor()
+                    val dominant = palette.getDominantColor(Color.Gray.toArgb())
+                    val darkMuted = palette.getDarkMutedColor(Color.Gray.toArgb())
+                    targetColor = Color(if (darkMuted != Color.Gray.toArgb()) darkMuted else dominant)
+                }
+            }
+            false -> {
+                val imageUrl = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg"
+                val bitmap = loadImageBitmap(imageUrl) // Функция загрузки Bitmap
+                bitmap?.let {
+                    val palette = Palette.from(it).generate()
+                    //backgroundColor = palette.getDominantColor(Color.Gray.toArgb()).toComposeColor()
+                    val dominant = palette.getDominantColor(Color.Gray.toArgb())
+                    val darkMuted = palette.getDarkMutedColor(Color.Gray.toArgb())
+                    targetColor = Color(if (darkMuted != Color.Gray.toArgb()) darkMuted else dominant)
+                }
+            }
         }
     }
 
     Column(
-        modifier = modifier.fillMaxWidth().padding(8.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(8.dp)
             .clip(RoundedCornerShape(4.dp))
-            .background(backgroundColor).clickable {
+            .background(backgroundColor)
+            .clickable {
                 lambdaToCaster()
             }
     ) {
@@ -95,16 +113,38 @@ fun CasterBar(
             modifier = modifier.fillMaxWidth()
             //.clip(MaterialTheme.shapes.small)
         ) {
-            AsyncImage(
-                model = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/250x250.jpg",
-                placeholder = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(10.dp)
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
+
+            if(isPlaying.isContent){
+                isPlaying.audio?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = "Обложка",
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: Icon(
+                    painter = painterResource(id = R.drawable.ic_launcher_foreground), // Ваш ресурс заглушки
+                    contentDescription = "Заглушка",
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                )
+            }else{
+                AsyncImage(
+                    model = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/250x250.jpg",
+                    placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(38.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
             Spacer(modifier = Modifier.width(4.dp))
             Column(
                 //modifier = Modifier.padding(horizontal = 16.dp)
