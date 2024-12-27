@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -88,16 +90,31 @@ fun CasterScreen(
 
     // Запуск асинхронного извлечения цвета
     LaunchedEffect(isPlaying.obj.md5_image) {
-        val imageUrl = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg"
-        val bitmap = loadImageBitmap(imageUrl)
-        bitmap?.let {
-            val palette = Palette.from(it).generate()
-            val dominant = palette.getDominantColor(Color.Gray.toArgb())
-            val darkMuted = palette.getDarkMutedColor(dominant)
+        when(isPlaying.isContent){
+            true -> {
+                isPlaying.audio?.let {
+                    val palette = Palette.from(it).generate()
+                    val dominant = palette.getDominantColor(Color.Gray.toArgb())
+                    val darkMuted = palette.getDarkMutedColor(dominant)
 
-            // Обновляем цвета с плавной анимацией
-            dominantColor = Color(dominant)
-            darkMutedColor = Color(darkMuted)
+                    // Обновляем цвета с плавной анимацией
+                    dominantColor = Color(dominant)
+                    darkMutedColor = Color(darkMuted)
+                }
+            }
+            false -> {
+                val imageUrl = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg"
+                val bitmap = loadImageBitmap(imageUrl) // Функция загрузки Bitmap
+                bitmap?.let {
+                    val palette = Palette.from(it).generate()
+                    val dominant = palette.getDominantColor(Color.Gray.toArgb())
+                    val darkMuted = palette.getDarkMutedColor(dominant)
+
+                    // Обновляем цвета с плавной анимацией
+                    dominantColor = Color(dominant)
+                    darkMutedColor = Color(darkMuted)
+                }
+            }
         }
     }
 
@@ -126,16 +143,39 @@ fun CasterScreen(
             }
         }
 
-        AsyncImage(
-            model = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg",
-            placeholder = painterResource(R.drawable.ic_launcher_foreground),
-            contentDescription = null,
-            modifier = Modifier
-                .size(350.dp)
-                .padding(top = 32.dp)
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+
+        if (isPlaying.isContent){
+            isPlaying.audio?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Обложка",
+                    modifier = Modifier
+                        .size(350.dp)
+                        .padding(top = 32.dp)
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } ?: Icon(
+                painter = painterResource(id = R.drawable.ic_launcher_foreground), // Ваш ресурс заглушки
+                contentDescription = "Заглушка",
+                modifier = Modifier
+                    .size(350.dp)
+                    .padding(top = 32.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+        }else{
+            AsyncImage(
+                model = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg",
+                placeholder = painterResource(R.drawable.ic_launcher_foreground),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(350.dp)
+                    .padding(top = 32.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+        }
+
 
         Spacer(modifier = Modifier.height(32.dp))
 

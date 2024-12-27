@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -38,8 +39,14 @@ sealed class Routes(val route: String, @StringRes val labelRes: Int, val icon: I
         icon = Icons.Default.Call
     )
 
+    object Library : Routes(
+        route = "library",
+        labelRes = R.string.app_name,
+        icon = Icons.Default.Favorite
+    )
+
     companion object {
-        val destinations = listOf(Account, TopChart)
+        val destinations = listOf(Library, TopChart)
     }
 }
 

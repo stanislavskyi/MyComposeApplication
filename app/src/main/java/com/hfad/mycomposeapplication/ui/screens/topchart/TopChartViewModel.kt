@@ -3,8 +3,14 @@ package com.hfad.mycomposeapplication.ui.screens.topchart
 
 import android.app.Application
 import android.content.ComponentName
+import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
+import android.provider.MediaStore
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -19,11 +25,14 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import com.hfad.mycomposeapplication.data.database.DatabaseRepository
 import com.hfad.mycomposeapplication.data.network.DeezerApiService
 import com.hfad.mycomposeapplication.data.network.dto.TrackDto
 import com.hfad.mycomposeapplication.data.paging.TrackPagingSource
+import com.hfad.mycomposeapplication.domain.entity.Audio
 import com.hfad.mycomposeapplication.domain.entity.Track
 import com.hfad.mycomposeapplication.services.MusicCasterService
+import com.hfad.mycomposeapplication.ui.screens.library.displayAudioInfo
 import com.hfad.mycomposeapplication.ui.state.StateCaster
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -32,13 +41,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class TopChartViewModel @Inject constructor(
     private val apiService: DeezerApiService,
-    private val context: Application
+    private val context: Application,
+    private val repository: DatabaseRepository
 ) : ViewModel() {
+
+
+    private val _musicList = MutableStateFlow<List<Audio>>(emptyList())
+    val musicList: StateFlow<List<Audio>> = _musicList
 
     val tracks: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(
@@ -70,7 +85,9 @@ class TopChartViewModel @Inject constructor(
     private val controllerFuture: ListenableFuture<MediaController>
 
     init {
-
+        viewModelScope.launch {
+            _musicList.value = repository.getAll()  // Загрузка данных при запуске
+        }
         val sessionToken = SessionToken(
             context.applicationContext,
             ComponentName(context.applicationContext, MusicCasterService::class.java)
@@ -144,11 +161,7 @@ class TopChartViewModel @Inject constructor(
         controllerFuture.get().setMediaItem(mediaItem)
         controllerFuture.get().play()
         Log.d("MY_TAG", "${post.md5_image}")
-        _isPlaying.value = _isPlaying.value.copy(preview = post.preview, obj = post)
-    }
-
-    fun hideCasterBar(){
-        _isPlaying.value = _isPlaying.value.copy(isPlaying = false)
+        _isPlaying.value = _isPlaying.value.copy(preview = post.preview, obj = post, isContent = false)
     }
 
     fun playCaster(){
@@ -159,6 +172,52 @@ class TopChartViewModel @Inject constructor(
         controllerFuture.get().pause()
     }
 
+    fun playForContent(post: Audio){
+        val artworkData = post.imageLong?.let { bitmapToByteArray(it) }
+        val mediaItem = MediaItem.Builder()
+            // Set a unique media ID for the media item
+            //.setMediaId("media-1")
+            .setUri(post.uri)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setArtist(post.title)
+                    .setTitle(post.title)
+                    .setArtworkData(artworkData, MediaMetadata.PICTURE_TYPE_FRONT_COVER)
+                    .build()
+            ).build()
 
+        controllerFuture.get().setMediaItem(mediaItem)
+        controllerFuture.get().play()
+
+        _isPlaying.value = _isPlaying.value.copy(audio = post.imageLong, isContent = true)
+        //_isPlaying.value = _isPlaying.value.copy(preview = post.preview, obj = post)
+    }
+
+    fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        return outputStream.toByteArray()
+    }
+
+    var isBottomSheetVisible by mutableStateOf(false)
+        private set
+
+    fun showBottomSheet() {
+        isBottomSheetVisible = true
+    }
+
+    fun hideBottomSheet() {
+        isBottomSheetVisible = false
+    }
+
+    fun addAudio(uri: Uri) {
+        val audioItem = displayAudioInfo(context, uri)
+        if (audioItem != null) {
+            viewModelScope.launch {
+                repository.insert(audioItem)
+                _musicList.value = repository.getAll()  // Обновление списка после добавления
+            }
+        }
+    }
 }
 
