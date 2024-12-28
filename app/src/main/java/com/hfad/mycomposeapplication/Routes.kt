@@ -45,6 +45,15 @@ sealed class Routes(val route: String, @StringRes val labelRes: Int, val icon: I
         icon = Icons.Default.Favorite
     )
 
+
+
+    //
+    object ExampleDelete : Routes(
+        route = "ExampleDelete",
+        labelRes = R.string.app_name,
+        icon = Icons.Default.Favorite
+    )
+
     companion object {
         val destinations = listOf(Library, TopChart)
     }

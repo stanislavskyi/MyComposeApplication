@@ -14,4 +14,7 @@ interface MusicDao {
 
     @Query("SELECT * FROM music")
     suspend fun getPriceList(): List<MusicDbModel>
+
+    @Query("DELETE FROM music WHERE title=:title")
+    suspend fun deleteItem(title: String)
 }

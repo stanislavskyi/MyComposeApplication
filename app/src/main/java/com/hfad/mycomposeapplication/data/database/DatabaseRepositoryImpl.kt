@@ -19,6 +19,10 @@ class DatabaseRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun deleteItem(music: Audio) {
+        music.title?.let { dao.deleteItem(it) }
+    }
+
     private fun mapEntityToDbModel(audio: Audio): MusicDbModel{
         return MusicDbModel(
             title = audio.title ?: "null",

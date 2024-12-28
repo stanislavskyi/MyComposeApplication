@@ -6,25 +6,37 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -48,11 +60,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hfad.mycomposeapplication.R
@@ -61,6 +76,7 @@ import com.hfad.mycomposeapplication.domain.entity.Track
 import com.hfad.mycomposeapplication.ui.screens.topchart.TopChartViewModel
 import com.hfad.mycomposeapplication.ui.screens.topchart.TrackImage
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,9 +103,37 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: TopChartViewModel){
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn {
-            items(musicListState) { audio ->
-                AudioItem(audio, viewModel)
+            itemsIndexed(musicListState){ index, contact ->
+                SwipeableItemWithActions(
+                    isRevealed = contact.isOptionsRevealed,
+                    onExpanded = {
+                        viewModel.updateItem(index, contact.copy(isOptionsRevealed = true))
+                    },
+                    onCollapsed = {
+                        viewModel.updateItem(index, contact.copy(isOptionsRevealed = false))
+                    },
+                    actions = {
+                        ActionIcon(
+                            onClick = {
+                                Toast.makeText(
+                                    context,
+                                    "Contact ${contact.title} was deleted.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                viewModel.removeContact(contact)
+                            },
+                            backgroundColor = Color.Red,
+                            icon = Icons.Default.Delete,
+                            modifier = Modifier.fillMaxHeight()
+                        )
+                    },
+                ) {
+                    AudioItem(contact, viewModel)
+                }
             }
+//            items(musicListState) { audio ->
+//                AudioItem(audio, viewModel)
+//            }
         }
         FloatingActionButton(
             onClick = {  viewModel.showBottomSheet()  },
@@ -130,11 +174,54 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: TopChartViewModel){
                 }
             }
         }
-
-
-
     }
 }
+
+//@Composable
+//fun DraggableListItem(text: String) {
+//    var offsetX by remember { mutableStateOf(0f) } // Хранит смещение по оси X
+//    val density = LocalDensity.current // Для конвертации dp в пиксели
+//    val maxDragDistance = with(density) { 150.dp.toPx() } // Максимальное смещение
+//
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(64.dp)
+//    ) {
+//        // Задний блок (красный фон)
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(Color.Red)
+//        )
+//
+//        // Передний блок (текст)
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .offset { IntOffset(offsetX.toInt(), 0) } // Смещение по X
+//                .background(Color.White)
+//                .pointerInput(Unit) {
+//                    detectDragGestures(
+//                        onDrag = { change, dragAmount ->
+//                            change.consume() // Указываем, что жест обработан
+//                            offsetX = (offsetX + dragAmount).coerceIn(0f, maxDragDistance) // Ограничиваем смещение
+//                        },
+//                        onDragEnd = {
+//                            // Возвращаем в исходное состояние после завершения перетаскивания
+//                            offsetX = 0f
+//                        }
+//                    )
+//                }
+//                .clip(RoundedCornerShape(8.dp))
+//                .border(1.dp, Color.Gray),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(text = text, color = Color.Black, style = MaterialTheme.typography.bodyMedium)
+//        }
+//    }
+//}
+
 
 fun displayAudioInfo(context: Context, uri: Uri): Audio? {
     val retriever = MediaMetadataRetriever()
@@ -157,6 +244,8 @@ fun displayAudioInfo(context: Context, uri: Uri): Audio? {
     }
 }
 
+
+
 @Composable
 fun AudioItem(audio: Audio, viewModel: TopChartViewModel) {
     Row(
@@ -176,7 +265,7 @@ fun AudioItem(audio: Audio, viewModel: TopChartViewModel) {
                 contentScale = ContentScale.Crop
             )
         } ?: Icon(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground), // Ваш ресурс заглушки
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
             contentDescription = "Заглушка",
             modifier = Modifier
                 .size(84.dp)
