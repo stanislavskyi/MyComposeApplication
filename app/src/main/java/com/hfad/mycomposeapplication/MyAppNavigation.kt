@@ -54,6 +54,7 @@ import com.hfad.mycomposeapplication.ui.common.components.CasterBar
 import com.hfad.mycomposeapplication.ui.screens.account.AccountScreen
 import com.hfad.mycomposeapplication.ui.screens.caster.CasterScreen
 import com.hfad.mycomposeapplication.ui.screens.library.LibraryScreen
+import com.hfad.mycomposeapplication.ui.screens.library.SwipeDelete
 import com.hfad.mycomposeapplication.ui.screens.login.LoginScreen
 import com.hfad.mycomposeapplication.ui.screens.register.RegisterScreen
 import com.hfad.mycomposeapplication.ui.screens.topchart.ChartScreen
@@ -138,12 +139,18 @@ fun MyAppNavigation(
                         navigationIcon = {
                             FilledIconButton(
                                 onClick = {
-
+                                    ////////////
+                                    ////////////
+                                    ////////////
+                                    ////////////
+                                    ////////////
+                                    //navController.navigateSingleTopTo(Routes.ExampleDelete.route)
                                     scope.launch {
                                         drawerState.apply {
                                             if (isClosed) open() else close()
                                         }
                                     }
+
 
                                 },
                                 modifier = Modifier.padding(8.dp),
@@ -229,6 +236,9 @@ fun MyAppNavigation(
                         LibraryScreen(
                             viewModel = sharedViewModel
                         )
+                    }
+                    composable(Routes.ExampleDelete.route) {
+                        SwipeDelete()
                     }
                 }
                 if (isPlaying.isPlaying) {

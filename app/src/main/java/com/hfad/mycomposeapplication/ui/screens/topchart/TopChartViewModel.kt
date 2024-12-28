@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
@@ -54,6 +55,24 @@ class TopChartViewModel @Inject constructor(
 
     private val _musicList = MutableStateFlow<List<Audio>>(emptyList())
     val musicList: StateFlow<List<Audio>> = _musicList
+
+    fun updateItem(index: Int, updatedAudio: Audio) {
+        _musicList.update { currentList ->
+            currentList.toMutableList().also {
+                it[index] = updatedAudio
+            }
+        }
+    }
+
+    fun removeContact(contact: Audio) {
+//        _musicList.update { currentList ->
+//            currentList.filter { it != contact }
+//        }
+        viewModelScope.launch {
+            repository.deleteItem(contact)
+            _musicList.value = repository.getAll()
+        }
+    }
 
     val tracks: Flow<PagingData<Track>> = Pager(
         config = PagingConfig(
