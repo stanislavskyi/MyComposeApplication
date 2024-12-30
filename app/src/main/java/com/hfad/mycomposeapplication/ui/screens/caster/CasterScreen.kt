@@ -19,18 +19,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -50,7 +47,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
@@ -61,6 +57,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+
+private fun generatePalette(bitmap: Bitmap): Palette {
+    return Palette.from(bitmap).generate()
+}
 
 @Composable
 fun CasterScreen(
@@ -93,7 +93,7 @@ fun CasterScreen(
         when(isPlaying.isContent){
             true -> {
                 isPlaying.audio?.let {
-                    val palette = Palette.from(it).generate()
+                    val palette = generatePalette(it)
                     val dominant = palette.getDominantColor(Color.Gray.toArgb())
                     val darkMuted = palette.getDarkMutedColor(dominant)
 
@@ -106,7 +106,7 @@ fun CasterScreen(
                 val imageUrl = "https://e-cdns-images.dzcdn.net/images/cover/${isPlaying.obj.md5_image}/1000x1000.jpg"
                 val bitmap = loadImageBitmap(imageUrl) // Функция загрузки Bitmap
                 bitmap?.let {
-                    val palette = Palette.from(it).generate()
+                    val palette = generatePalette(it)
                     val dominant = palette.getDominantColor(Color.Gray.toArgb())
                     val darkMuted = palette.getDarkMutedColor(dominant)
 

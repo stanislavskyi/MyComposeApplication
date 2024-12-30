@@ -1,4 +1,4 @@
-package com.hfad.mycomposeapplication.ui.screens.library
+package com.hfad.mycomposeapplication.ui.screens.library.swipe
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.hfad.mycomposeapplication.ui.screens.library.SwipeableItemWithActions
 
 @Composable
 fun ContactScreen() {

@@ -3,14 +3,11 @@ package com.hfad.mycomposeapplication.services
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.hfad.mycomposeapplication.domain.entity.Track
 
 class MusicCasterService : MediaSessionService() {
 
@@ -27,12 +24,12 @@ class MusicCasterService : MediaSessionService() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+
         val trackUriString = intent?.getStringExtra("TRACK_URI")
         if (trackUriString != null) {
             val trackUri = Uri.parse(trackUriString)
             playTrack(trackUri)
         }
-
 
         return START_STICKY
     }
@@ -45,7 +42,6 @@ class MusicCasterService : MediaSessionService() {
         exoPlayer.play()
     }
 
-
     override fun onDestroy() {
         exoPlayer.stop()
         exoPlayer.release()
@@ -53,8 +49,9 @@ class MusicCasterService : MediaSessionService() {
         mediaSession?.run {
             player.release()
             release()
-            mediaSession = null
+
         }
+        mediaSession = null
         super.onDestroy()
     }
 

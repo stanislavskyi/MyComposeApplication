@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Routes(val route: String, @StringRes val labelRes: Int, val icon: ImageVector ) {
+
     object Login : Routes(
         route = "login",
         labelRes = R.string.app_name,
@@ -41,15 +42,6 @@ sealed class Routes(val route: String, @StringRes val labelRes: Int, val icon: I
 
     object Library : Routes(
         route = "library",
-        labelRes = R.string.app_name,
-        icon = Icons.Default.Favorite
-    )
-
-
-
-    //
-    object ExampleDelete : Routes(
-        route = "ExampleDelete",
         labelRes = R.string.app_name,
         icon = Icons.Default.Favorite
     )

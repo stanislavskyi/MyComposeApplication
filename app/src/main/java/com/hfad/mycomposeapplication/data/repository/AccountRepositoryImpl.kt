@@ -33,14 +33,14 @@ class AccountRepositoryImpl @Inject constructor(
                     val currentUser = auth.currentUser?.email?.substringBefore("@") ?: ""
                     val friends = getFriends().map { it.name }.toSet()
 
-                    val list = it.documents.mapNotNull { doc ->
+                    val friendList = it.documents.mapNotNull { doc ->
                         val name = doc.getString("name") ?: "Unknown"
                         if (name != currentUser) {
                             val isFriend = friends.contains(name)
                             Friend(name = name, subscription = !isFriend)
                         } else null
                     }
-                    trySend(list)
+                    trySend(friendList)
                 }
             }
         }
@@ -51,96 +51,36 @@ class AccountRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getFriends(): List<Friend>{
-        val userId = auth.currentUser?.uid ?: ""
-        val result = firestore.collection("users").document(userId)
-            .collection("friends").get().await()
-        val list = mutableListOf<Friend>()
+        val userId = auth.currentUser?.uid ?: return emptyList()
+        return firestore.collection("users")
+            .document(userId)
+            .collection("friends")
+            .get()
+            .await()
+            .map { Friend(name = it.id) }
 
-        for (item in result){
-            list.add(Friend(name = item.id))
-        }
-        return list
     }
 
     override suspend fun addFriend(friend: Friend) {
-        val userId = auth.currentUser?.uid ?: ""
-        val user = hashMapOf(
-            "subscription" to true,
-            "name" to friend.name
-        )
-        firestore.collection("users").document(userId).collection("friends")
-            .document(friend.name).set(
-                user,
-                SetOptions.merge()
-            ).await()
+        val userId = auth.currentUser?.uid ?: throw IllegalStateException("User not authenticated")
+        val user = hashMapOf("subscription" to true, "name" to friend.name)
 
+        firestore.collection("users")
+            .document(userId)
+            .collection("friends")
+            .document(friend.name)
+            .set(user, SetOptions.merge())
+            .await()
     }
 
     override suspend fun deleteFriend(friend: Friend){
-        val userId = auth.currentUser?.uid ?: ""
-        firestore.collection("users").document(userId).collection("friends")
-            .document(friend.name).delete().await()
+        val userId = auth.currentUser?.uid ?: throw IllegalStateException("User not authenticated")
+
+        firestore.collection("users")
+            .document(userId)
+            .collection("friends")
+            .document(friend.name)
+            .delete()
+            .await()
     }
 }
-
-/*
-
-class AccountRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
-) : AccountRepository {
-
-    override suspend fun getUsers(): List<Friend> {
-        val currentUser = auth.currentUser?.email?.substringBefore("@") ?: ""
-        val result = firestore.collection("users").get().await()
-
-        val friends = getFriends().map { it.name }.toSet()
-        val list = mutableListOf<Friend>()
-
-        for (item in result){
-            val name = item.getString("name") ?: "Unknown"
-            if (name != currentUser) {
-
-                val isFriend = friends.contains(name)
-                list.add(Friend(name = name, subscription = !isFriend))
-            }
-        }
-        return list
-    }
-
-
-    private suspend fun getFriends(): List<Friend>{
-        val userId = auth.currentUser?.uid ?: ""
-        val result = firestore.collection("users").document(userId)
-            .collection("friends").get().await()
-        val list = mutableListOf<Friend>()
-
-        for (item in result){
-            Log.d("MY_TAG", item.id)
-            list.add(Friend(name = item.id))
-        }
-        return list
-    }
-
-
-    override suspend fun addFriend(friend: Friend) {
-        val userId = auth.currentUser?.uid ?: ""
-        val user = hashMapOf(
-            "subscription" to true,
-            "name" to friend.name
-        )
-        firestore.collection("users").document(userId).collection("friends")
-            .document(friend.name).set(
-                user,
-                SetOptions.merge()
-            ).await()
-
-    }
-
-    override suspend fun deleteFriend(friend: Friend){
-        val userId = auth.currentUser?.uid ?: ""
-        firestore.collection("users").document(userId).collection("friends")
-            .document(friend.name).delete().await()
-    }
-}
- */

@@ -51,40 +51,28 @@ fun ChartScreen(
 
     val lazyPagingItems = viewModel.tracks.collectAsLazyPagingItems()
 
-    Box(modifier = Modifier.fillMaxWidth()){
-        LazyColumn{
-            if (lazyPagingItems.loadState.refresh is LoadState.Loading) {
-                items(6) {
-                    LoadingRow()
+    Box(modifier = Modifier.fillMaxWidth()) {
+        LazyColumn {
+            when (lazyPagingItems.loadState.refresh) {
+                is LoadState.Loading -> {
+                    items(6) { LoadingRow() }
                 }
-            }
 
-            if (lazyPagingItems.loadState.refresh is LoadState.Error) {
-                item {
-                    Text(
-                        text = "Ошибка загрузки. Проверьте интернет-соединение.",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                    Button(
-                        onClick = { lazyPagingItems.refresh() },
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text("Повторить")
+                is LoadState.Error -> {
+                    item { ErrorItem(lazyPagingItems::refresh) }
+                }
+                else -> {
+                    items(lazyPagingItems.itemCount) { index ->
+                        //lazyPagingItems[index]?.let { TopChartItem(it, viewModel) }
+                        val post = lazyPagingItems[index]
+                        if (post != null) {
+                            TopChartItem(post, viewModel)
+                        }
                     }
                 }
             }
 
-            else {
-                items(lazyPagingItems.itemCount) { index ->
-                    val post = lazyPagingItems[index]
-                    if (post != null) {
-                        TopChartItem(post, viewModel)
-                    }
-                }
-            }
-
+            //
 
             lazyPagingItems.apply {
                 when {
@@ -109,6 +97,26 @@ fun ChartScreen(
         }
     }
 
+}
+
+@Composable
+fun ErrorItem(onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Ошибка загрузки. Проверьте интернет-соединение.",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onRetry) {
+            Text("Повторить")
+        }
+    }
 }
 
 @Composable
@@ -162,10 +170,10 @@ fun TopChartItem(
 
         if (isPlaying.isPlaying && isPlaying.preview == post.preview) {
             IconButton(onClick = { viewModel.pause() }) {
-                Icon(imageVector = Icons.Default.Close , contentDescription = "Pause")
+                Icon(imageVector = Icons.Default.Close, contentDescription = "Pause")
             }
         } else {
-            IconButton(onClick = {viewModel.play(post) }){//viewModel.play(post.preview, post.cover_medium) }) {
+            IconButton(onClick = { viewModel.play(post) }) {//viewModel.play(post.preview, post.cover_medium) }) {
                 Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Play")
             }
         }

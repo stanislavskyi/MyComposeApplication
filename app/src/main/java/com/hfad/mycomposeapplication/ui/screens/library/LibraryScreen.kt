@@ -9,14 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,20 +17,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,32 +39,24 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hfad.mycomposeapplication.R
-import com.hfad.mycomposeapplication.domain.entity.Audio
-import com.hfad.mycomposeapplication.domain.entity.Track
+import com.hfad.mycomposeapplication.domain.entity.Music
+import com.hfad.mycomposeapplication.ui.screens.library.swipe.ActionIcon
 import com.hfad.mycomposeapplication.ui.screens.topchart.TopChartViewModel
-import com.hfad.mycomposeapplication.ui.screens.topchart.TrackImage
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +66,8 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: TopChartViewModel){
     val scope = rememberCoroutineScope()
 
     val musicListState by viewModel.musicList.collectAsStateWithLifecycle()
+
+//    val listMusicState by viewModel.isPlaying.collectAsState()
 
     val context = LocalContext.current
     val openFilePicker = rememberLauncherForActivityResult(
@@ -223,7 +205,7 @@ fun LibraryScreen(modifier: Modifier = Modifier, viewModel: TopChartViewModel){
 //}
 
 
-fun displayAudioInfo(context: Context, uri: Uri): Audio? {
+fun displayAudioInfo(context: Context, uri: Uri): Music? {
     val retriever = MediaMetadataRetriever()
     return try {
         retriever.setDataSource(context, uri)
@@ -236,7 +218,7 @@ fun displayAudioInfo(context: Context, uri: Uri): Audio? {
             BitmapFactory.decodeResource(context.resources, R.drawable.ic_launcher_foreground)
         }
         retriever.release()
-        Audio(title, bitmap, uri)
+        Music(title, bitmap, uri)
     } catch (e: Exception) {
         retriever.release()
         e.printStackTrace()
@@ -247,18 +229,17 @@ fun displayAudioInfo(context: Context, uri: Uri): Audio? {
 
 
 @Composable
-fun AudioItem(audio: Audio, viewModel: TopChartViewModel) {
+fun AudioItem(music: Music, viewModel: TopChartViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        audio.imageLong?.let {
+        music.imageLong?.let {
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = "Обложка",
-
                 modifier = Modifier
                     .size(84.dp)
                     .clip(RoundedCornerShape(4.dp)),
@@ -276,13 +257,13 @@ fun AudioItem(audio: Audio, viewModel: TopChartViewModel) {
             modifier = Modifier.weight(1f) //Поэтому button play находится в углу справа
         ) {
             Text(
-                text = audio.title!!,
+                text = music.title!!,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
 
             )
             Text(
-                text =  audio.title,
+                text =  music.title,
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline
 
@@ -290,8 +271,8 @@ fun AudioItem(audio: Audio, viewModel: TopChartViewModel) {
         }
 
         IconButton(onClick = {
-            Log.d("MY_TAG26", "${audio.uri}")
-            viewModel.playForContent(audio)
+            Log.d("MY_TAG26", "${music.uri}")
+            viewModel.playForContent(music)
         }) { Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "") }
     }
 }

@@ -1,12 +1,14 @@
 package com.hfad.mycomposeapplication.ui.screens.account
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,34 +18,48 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hfad.mycomposeapplication.ui.theme.MyComposeApplicationTheme
+import com.example.compose.AppTheme
+import com.hfad.mycomposeapplication.MyAppNavigation
+import com.hfad.mycomposeapplication.domain.entity.Friend
 
 @Composable
 fun AccountScreen(
     modifier: Modifier = Modifier,
     viewModel: FriendsViewModel = hiltViewModel()
 ) {
-    val friends by viewModel.friendsState.collectAsState(listOf())
-    FriendList(
-        friends = friends,
-        viewModel = viewModel
-    )
-}
+    val state by viewModel.state.collectAsState() // Получаем состояние
 
-
-@Composable
-fun FriendList(
-    modifier: Modifier = Modifier.fillMaxHeight(),
-    friends: List<Friend>,
-    viewModel: FriendsViewModel
-){
-    LazyColumn(modifier = modifier) {
-        items(items = friends){ friend ->
-            FriendItem(
-                friend = friend,
-                lambdaClickButton = { viewModel.changeSubState(friend) }
+    when(state) {
+        is AccountState.Loading -> {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center) ,
+                color = MaterialTheme.colorScheme.secondary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
             )
+        }
+
+        is AccountState.Content ->  {
+            val friends = (state as AccountState.Content).list
+
+            if (friends.isEmpty()){
+                Text(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    text = "Вы единственный пользователь"
+                )
+            } else{
+                LazyColumn(modifier = modifier) {
+                    items(items = friends) { friend ->
+                        FriendItem(
+                            friend = friend,
+                            lambdaClickButton = { viewModel.changeSubState(friend) }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -53,7 +69,7 @@ fun FriendItem(
     modifier: Modifier = Modifier,
     friend: Friend,
     lambdaClickButton: () -> Unit
-){
+) {
     Row(
         modifier = modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -66,17 +82,18 @@ fun FriendItem(
             onClick = { lambdaClickButton() }
 
         ) {
-            Text(text = if(friend.subscription) "Добавить" else "Удалить")
+            Text(text = if (friend.subscription) "Добавить" else "Удалить")
         }
     }
 }
 
-
-
 @Preview
 @Composable
-fun AccountScreenPreview(){
-    MyComposeApplicationTheme {
+fun AccountScreenPreview() {
+    AppTheme {
         AccountScreen()
     }
+//    MyComposeApplicationTheme {
+//        MyAppNavigation()
+//    }
 }
