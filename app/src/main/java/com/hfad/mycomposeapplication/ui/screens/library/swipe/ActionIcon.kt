@@ -1,4 +1,4 @@
-package com.hfad.mycomposeapplication.ui.screens.library
+package com.hfad.mycomposeapplication.ui.screens.library.swipe
 
 import androidx.compose.foundation.background
 import androidx.compose.material3.Icon

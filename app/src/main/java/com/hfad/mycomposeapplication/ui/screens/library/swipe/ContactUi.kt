@@ -1,4 +1,4 @@
-package com.hfad.mycomposeapplication.ui.screens.library
+package com.hfad.mycomposeapplication.ui.screens.library.swipe
 
 data class ContactUi(
     val id: Int,

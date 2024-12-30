@@ -25,7 +25,7 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -97,7 +97,6 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.7.0")
 
     implementation("androidx.media3:media3-exoplayer:1.5.0")
-    implementation("androidx.media3:media3-exoplayer-dash:1.5.0")
     implementation("androidx.media3:media3-ui:1.5.0")
 
     implementation("androidx.media3:media3-session:1.5.0")
@@ -111,11 +110,10 @@ dependencies {
     //room
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
-    annotationProcessor("androidx.room:room-compiler:$room_version")
+
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
-    implementation("androidx.room:room-rxjava2:$room_version")
-    implementation("androidx.room:room-rxjava3:$room_version")
+
     implementation("androidx.room:room-guava:$room_version")
     testImplementation("androidx.room:room-testing:$room_version")
     implementation("androidx.room:room-paging:$room_version")

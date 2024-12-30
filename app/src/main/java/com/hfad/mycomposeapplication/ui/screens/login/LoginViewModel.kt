@@ -22,31 +22,28 @@ class LoginViewModel @Inject constructor(
     }
 
     fun login(email: String, password: String) {
-        if (!isValidEmail(email)) {
-            _loginState.value = LoginState.Error("Invalid email format")
-            return
-        }
-        if (!isValidPassword(password)) {
-            _loginState.value = LoginState.Error("Password short")
-            return
-        }
-        viewModelScope.launch {
-            val result = loginUseCase(email, password)
-            if (result.isSuccess) {
-                _loginState.value = LoginState.Success
-            } else {
-                _loginState.value = LoginState.Error("The supplid autn sredential is incorrect")
+        when {
+            email.isValidEmail().not() -> _loginState.value = LoginState.Error.InvalidEmail
+            password.isValidPassword().not() -> _loginState.value = LoginState.Error.InvalidPassword
+            else -> {
+                viewModelScope.launch {
+                    val result = loginUseCase(email, password)
+                    if (result.isSuccess) {
+                        _loginState.value = LoginState.Success
+                    } else {
+                        _loginState.value = LoginState.Error.AuthenticationFailed
+                    }
+                }
             }
         }
     }
 
-    private fun isValidEmail(email: String): Boolean = email.contains("@")
-    private fun isValidPassword(password: String): Boolean = password.length >= VALID_PASSWORD
+    private fun String.isValidEmail() = contains("@") && length > 5
+    private fun String.isValidPassword() = length >= VALID_PASSWORD
 
     companion object {
         private const val VALID_PASSWORD = 6
     }
-
 }
 
 

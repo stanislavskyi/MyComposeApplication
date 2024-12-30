@@ -33,11 +33,11 @@ class RegisterViewModel @Inject constructor(
 
     fun register(email: String, password: String) {
         if (!isValidEmail(email)) {
-            _registerState.value = LoginState.Error("Invalid email format")
+            _registerState.value = LoginState.Error.InvalidEmail
             return
         }
         if (!isValidPassword(password)) {
-            _registerState.value = LoginState.Error("Password short")
+            _registerState.value = LoginState.Error.InvalidPassword
             return
         }
         viewModelScope.launch {
@@ -45,7 +45,7 @@ class RegisterViewModel @Inject constructor(
             if (result.isSuccess) {
                 _registerState.value = LoginState.Success
             } else {
-                _registerState.value = LoginState.Error("The supplid autn sredential is incorrect")
+                _registerState.value = LoginState.Error.AuthenticationFailed
             }
         }
     }

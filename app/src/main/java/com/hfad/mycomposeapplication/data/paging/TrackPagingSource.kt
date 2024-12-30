@@ -14,8 +14,6 @@ class TrackPagingSource(
             val currentPage = params.key ?: 0
             val response = apiService.getTracks(currentPage, params.loadSize)
 
-            Log.d("TrackPagingSource", "Downloaded response: $response")
-            Log.d("TrackPagingSource", "Downloaded currentPage: $currentPage")
             LoadResult.Page(
                 data = response.data,
                 prevKey = if (currentPage == 0) null else currentPage - params.loadSize,
