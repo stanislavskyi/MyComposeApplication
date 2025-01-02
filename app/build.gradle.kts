@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -78,32 +80,32 @@ dependencies {
 
     //Compose navigation
     implementation(libs.androidx.navigation.compose)
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.hilt.navigation.compose)
 
 
     //Dagger-Hilt
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    ksp("com.google.dagger:hilt-compiler:2.51.1")
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     //Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    implementation("androidx.paging:paging-compose:3.3.4")
+    implementation(libs.androidx.paging.compose)
     //implementation("androidx.paging:paging-runtime:3.3.4")
 
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 
-    implementation("androidx.media3:media3-exoplayer:1.5.0")
-    implementation("androidx.media3:media3-ui:1.5.0")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation("androidx.media3:media3-ui:1.5.1")
 
-    implementation("androidx.media3:media3-session:1.5.0")
+    implementation("androidx.media3:media3-session:1.5.1")
 
-    implementation("androidx.palette:palette-ktx:1.0.0")
+    implementation(libs.androidx.palette.ktx)
 
-    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+    implementation(libs.coil3.coil.compose)
 
 
     //Room
